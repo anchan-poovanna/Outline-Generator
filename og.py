@@ -412,9 +412,9 @@ def main():
     try:
         
         # API Keys
-        FIRECRAWL_API_KEY = st.secrets("FIRECRAWL_API_KEY")
-        OPENAI_API_KEY = st.secrets("OPENAI_API_KEY")
-        SERPAPI_KEY = st.secrets("SERPAPI_KEY")
+        FIRECRAWL_API_KEY = st.secrets["FIRECRAWL_API_KEY"]
+        OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+        SERPAPI_KEY = st.secrets["SERPAPI_KEY"]
         
 
         # Get search query from user
