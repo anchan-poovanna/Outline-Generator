@@ -12,10 +12,11 @@ from typing import List, Dict
 load_dotenv()
 
 # Get API keys from environment variables
-FIRECRAWL_API_KEY = st.secrets("FIRECRAWL_API_KEY")
-OPENAI_API_KEY = st.secrets("OPENAI_API_KEY")
-SERPAPI_KEY = st.secrets("SERPAPI_KEY")
-MOZ_API_TOKEN = st.secrets("MOZ_API_TOKEN")
+FIRECRAWL_API_KEY = st.secrets["FIRECRAWL_API_KEY"]
+OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+SERPAPI_KEY = st.secrets["SERPAPI_KEY"]
+MOZ_API_TOKEN = st.secrets["MOZ_API_TOKEN"]
+
 
 # Configure page
 st.set_page_config(page_title="Outline Generator", layout="wide")
