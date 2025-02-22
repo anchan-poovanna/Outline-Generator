@@ -9,8 +9,8 @@ import streamlit as st  # Use Streamlit secrets
 load_dotenv()
 
 # Get API keys from environment variables
-MOZ_API_TOKEN = st.secrets("MOZ_API_TOKEN")
-OPENAI_API_KEY = st.secrets("OPENAI_API_KEY")
+MOZ_API_TOKEN = st.secrets["MOZ_API_TOKEN"]
+OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 
 # API Headers
 HEADERS = {
