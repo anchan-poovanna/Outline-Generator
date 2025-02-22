@@ -381,30 +381,47 @@ Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
             return {}
 
 def get_search_results(query: str, api_key: str, num_results: int = 10) -> Dict:
-    """Get search results from SerpAPI with retry logic"""
+    """Get search results from SerpAPI with enhanced error handling and logging"""
     url = "https://serpapi.com/search"
+    
+    # Validate API key
+    if not api_key or api_key.isspace():
+        st.error("SERPAPI_KEY is not properly configured in Streamlit secrets")
+        return None
+        
     params = {
         "q": query,
         "api_key": api_key,
         "num": num_results,
-        "hl": "en",  # Language
-        "gl": "us"   # Country
+        "hl": "en",
+        "gl": "us"
     }
     
     max_retries = 3
     for attempt in range(max_retries):
         try:
+            # Add logging for debugging
+            st.write(f"Attempting SERP API call (attempt {attempt + 1}/{max_retries})")
+            
             response = requests.get(url, params=params, timeout=30)
+            
+            # Log response status for debugging
+            st.write(f"SERP API Response Status: {response.status_code}")
+            
             if response.status_code == 200:
                 return response.json()
+            elif response.status_code == 401:
+                st.error("SERP API Authentication failed. Please check your API key.")
+                return None
             else:
-                print(f"Error: {response.status_code}, {response.text}")
+                st.error(f"SERP API Error: {response.status_code}, {response.text}")
+                
         except requests.exceptions.RequestException as e:
             if attempt == max_retries - 1:
-                print(f"Failed after {max_retries} attempts: {str(e)}")
+                st.error(f"Failed to fetch SERP data after {max_retries} attempts: {str(e)}")
                 return None
-            print(f"Attempt {attempt + 1} failed, retrying...")
-            time.sleep(2)  # Wait 2 seconds before retrying
+            st.warning(f"Attempt {attempt + 1} failed, retrying...")
+            time.sleep(2)
     
     return None
 
