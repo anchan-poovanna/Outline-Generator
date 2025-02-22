@@ -24,50 +24,97 @@ def safe_split(text, delimiter1, delimiter2=None):
         return ""
 
 def display_enhanced_outline(enhanced_outline):
-    """Display enhanced outline with proper error handling"""
+    """Display enhanced outline with structured format"""
     try:
         if not enhanced_outline:
             st.error("No outline content available")
             return
 
         sections = {
+            "Primary keyword": ("Primary keyword:", "Secondary keywords:"),
+            "Secondary keywords": ("Secondary keywords:", "Meta title:"),
             "Meta Title": ("Meta title:", "Meta description:"),
             "Meta Description": ("Meta description:", "Slug:"),
             "Slug": ("Slug:", "Outline:"),
-            "H1 Options": ("H1:", "Introduction:"),
-            "Introduction": ("Introduction:", "Writing Guidelines:"),
+            "Outline": ("Outline:", "Writing Guidelines:"),
             "Writing Guidelines": ("Writing Guidelines:", "Article Type Prediction:"),
             "Article Type Prediction": ("Article Type Prediction:", "Justification:"),
             "Justification": ("Justification:", None)
         }
 
         st.markdown("<p class='big-font'>Enhanced Content Outline:</p>", unsafe_allow_html=True)
-        
+
         for section_name, (start_delimiter, end_delimiter) in sections.items():
-            content = safe_split(enhanced_outline, start_delimiter, end_delimiter)
-            
-            if section_name == "H1 Options":
-                st.markdown("<div class='medium-font'>", unsafe_allow_html=True)
-                st.markdown(f"<p><strong>{section_name}:</strong></p>", unsafe_allow_html=True)
-                options = [opt.strip() for opt in content.split('-') if opt.strip()]
-                for opt in options:
-                    st.markdown(f"• {opt}", unsafe_allow_html=True)
+            try:
+                content = safe_split(enhanced_outline, start_delimiter, end_delimiter)
+                
+                if section_name == "Outline":
+                    st.markdown("<div class='medium-font'>", unsafe_allow_html=True)
+                    st.markdown("<p><strong>Outline:</strong></p>", unsafe_allow_html=True)
+                    
+                    # Split the outline content into sections
+                    outline_parts = content.split("H2:")
+                    
+                    # Handle H1 and Introduction if present
+                    if outline_parts[0]:
+                        h1_intro = outline_parts[0].split("Introduction:")
+                        if len(h1_intro) > 0:
+                            st.markdown("<p><strong>H1 Options:</strong></p>", unsafe_allow_html=True)
+                            h1_options = [opt.strip() for opt in h1_intro[0].split('-') if opt.strip()]
+                            for opt in h1_options:
+                                st.markdown(f"• {opt}", unsafe_allow_html=True)
+                        
+                        if len(h1_intro) > 1:
+                            st.markdown("<p><strong>Introduction:</strong></p>", unsafe_allow_html=True)
+                            st.markdown(h1_intro[1].strip(), unsafe_allow_html=True)
+                    
+                    # Handle H2 and H3 sections
+                    for section in outline_parts[1:]:
+                        if section.strip():
+                            lines = section.split('\n')
+                            # First line is H2 title
+                            st.markdown(f"<p><strong>H2:</strong> {lines[0].strip()}</p>", unsafe_allow_html=True)
+                            # Following lines are H3 points
+                            for line in lines[1:]:
+                                if line.strip().startswith('H3:'):
+                                    st.markdown(f"  • {line.strip()[3:]}", unsafe_allow_html=True)
+                    
+                    # Handle FAQ section if present
+                    if "FAQ:" in content:
+                        st.markdown("<p><strong>FAQ:</strong></p>", unsafe_allow_html=True)
+                        faq_content = content.split("FAQ:")[1].split("Writing Guidelines:")[0]
+                        faq_items = [q.strip() for q in faq_content.split('\n') if q.strip()]
+                        for i, question in enumerate(faq_items, 1):
+                            st.markdown(f"{i}. {question}", unsafe_allow_html=True)
+
+                elif section_name == "Writing Guidelines":
+                    st.markdown("<div class='medium-font'>", unsafe_allow_html=True)
+                    st.markdown("<p><strong>Writing Guidelines:</strong></p>", unsafe_allow_html=True)
+                    guidelines = [g.strip() for g in content.split('-') if g.strip()]
+                    for guideline in guidelines:
+                        st.markdown(f"• {guideline}", unsafe_allow_html=True)
+
+                elif section_name == "Article Type Prediction":
+                    st.markdown("<div class='medium-font'>", unsafe_allow_html=True)
+                    st.markdown("<p><strong>Article Type Prediction:</strong></p>", unsafe_allow_html=True)
+                    st.markdown(content, unsafe_allow_html=True)
+
+                elif section_name == "Justification":
+                    st.markdown("<div class='medium-font'>", unsafe_allow_html=True)
+                    st.markdown("<p><strong>Justification:</strong></p>", unsafe_allow_html=True)
+                    justification_points = [j.strip() for j in content.split('-') if j.strip()]
+                    for point in justification_points:
+                        st.markdown(f"• {point}", unsafe_allow_html=True)
+
+                else:
+                    st.markdown("<div class='medium-font'>", unsafe_allow_html=True)
+                    st.markdown(f"<p><strong>{section_name}:</strong> {content}</p>", unsafe_allow_html=True)
+
                 st.markdown("</div>", unsafe_allow_html=True)
-            elif section_name == "Writing Guidelines":
-                st.markdown("<div class='medium-font'>", unsafe_allow_html=True)
-                st.markdown(f"<p><strong>{section_name}:</strong></p>", unsafe_allow_html=True)
-                # Split by dash/hyphen and clean up the points
-                guidelines = [guideline.strip() for guideline in content.split('-') if guideline.strip()]
-                for guideline in guidelines:
-                    st.markdown(f"• {guideline}", unsafe_allow_html=True)
-                st.markdown("</div>", unsafe_allow_html=True)
-            else:
-                st.markdown(
-                    f"""<div class='medium-font'>
-                        <p><strong>{section_name}:</strong><br>{content}</p>
-                    </div>""",
-                    unsafe_allow_html=True
-                )
+
+            except Exception as e:
+                st.error(f"Error displaying {section_name}: {str(e)}")
+                continue
 
     except Exception as e:
         st.error(f"Error displaying outline: {str(e)}")
