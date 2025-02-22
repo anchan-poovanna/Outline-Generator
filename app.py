@@ -53,6 +53,14 @@ def display_enhanced_outline(enhanced_outline):
                 for opt in options:
                     st.markdown(f"• {opt}", unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
+            elif section_name == "Writing Guidelines":
+                st.markdown("<div class='medium-font'>", unsafe_allow_html=True)
+                st.markdown(f"<p><strong>{section_name}:</strong></p>", unsafe_allow_html=True)
+                # Split by dash/hyphen and clean up the points
+                guidelines = [guideline.strip() for guideline in content.split('-') if guideline.strip()]
+                for guideline in guidelines:
+                    st.markdown(f"• {guideline}", unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
             else:
                 st.markdown(
                     f"""<div class='medium-font'>
