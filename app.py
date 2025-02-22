@@ -8,6 +8,63 @@ from dotenv import load_dotenv
 import os
 from typing import List, Dict
 
+def safe_split(text, delimiter1, delimiter2=None):
+    """Safely split text between two delimiters"""
+    try:
+        if delimiter2:
+            split1 = text.split(delimiter1, 1)
+            if len(split1) > 1:
+                split2 = split1[1].split(delimiter2, 1)
+                return split2[0].strip() if len(split2) > 1 else ""
+        else:
+            split1 = text.split(delimiter1, 1)
+            return split1[1].strip() if len(split1) > 1 else ""
+    except Exception as e:
+        st.error(f"Error processing content: {str(e)}")
+        return ""
+
+def display_enhanced_outline(enhanced_outline):
+    """Display enhanced outline with proper error handling"""
+    try:
+        if not enhanced_outline:
+            st.error("No outline content available")
+            return
+
+        sections = {
+            "Meta Title": ("Meta title:", "Meta description:"),
+            "Meta Description": ("Meta description:", "Slug:"),
+            "Slug": ("Slug:", "Outline:"),
+            "H1 Options": ("H1:", "Introduction:"),
+            "Introduction": ("Introduction:", "Writing Guidelines:"),
+            "Writing Guidelines": ("Writing Guidelines:", "Article Type Prediction:"),
+            "Article Type Prediction": ("Article Type Prediction:", "Justification:"),
+            "Justification": ("Justification:", None)
+        }
+
+        st.markdown("<p class='big-font'>Enhanced Content Outline:</p>", unsafe_allow_html=True)
+        
+        for section_name, (start_delimiter, end_delimiter) in sections.items():
+            content = safe_split(enhanced_outline, start_delimiter, end_delimiter)
+            
+            if section_name == "H1 Options":
+                st.markdown("<div class='medium-font'>", unsafe_allow_html=True)
+                st.markdown(f"<p><strong>{section_name}:</strong></p>", unsafe_allow_html=True)
+                options = [opt.strip() for opt in content.split('-') if opt.strip()]
+                for opt in options:
+                    st.markdown(f"• {opt}", unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
+            else:
+                st.markdown(
+                    f"""<div class='medium-font'>
+                        <p><strong>{section_name}:</strong><br>{content}</p>
+                    </div>""",
+                    unsafe_allow_html=True
+                )
+
+    except Exception as e:
+        st.error(f"Error displaying outline: {str(e)}")
+        st.error("Detailed error info:", exc_info=True)
+
 # Load environment variables
 load_dotenv()
 
@@ -269,25 +326,11 @@ def main():
                     </div>
                 """, unsafe_allow_html=True)
 
-                st.markdown("<p class='big-font'>Enhanced Content Outline:</p>", unsafe_allow_html=True)
-                st.markdown(f"""
-                    <div class='medium-font'>
-                        <p><strong>Meta Title:</strong><br>{enhanced_outline.split('Meta title:')[1].split('Meta description:')[0].strip()}</p>
-                        <p><strong>Meta Description:</strong><br>{enhanced_outline.split('Meta description:')[1].split('Slug:')[0].strip()}</p>
-                        <p><strong>Slug:</strong><br>{enhanced_outline.split('Slug:')[1].split('Outline:')[0].strip()}</p>
-                        <p><strong>Outline:</strong><br>
-                        H1:<br>
-                        {
-                            '<br>'.join([f"• {option.strip()}" for option in 
-                            enhanced_outline.split('H1:')[1].split('Introduction:')[0].strip().split('-') if option.strip()])
-                        }
-                        <br><br>
-                        Introduction:{enhanced_outline.split('Introduction:')[1].split('Writing Guidelines:')[0].strip()}</p>
-                        <p><strong>Writing Guidelines:</strong><br>{enhanced_outline.split('Writing Guidelines:')[1].split('Article Type Prediction:')[0].strip()}</p>
-                        <p><strong>Article Type Prediction:</strong><br>{enhanced_outline.split('Article Type Prediction:')[1].split('Justification:')[0].strip()}</p>
-                        <p><strong>Justification:</strong><br>{enhanced_outline.split('Justification:')[1].strip()}</p>
-                    </div>
-                """, unsafe_allow_html=True)
+               # Replace with this new code
+                if enhanced_outline:
+                    display_enhanced_outline(enhanced_outline)
+                else:
+                    st.error("Failed to generate enhanced outline.")
                 
                 st.success("Analysis completed successfully!")
                 
