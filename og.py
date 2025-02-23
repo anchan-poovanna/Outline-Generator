@@ -166,7 +166,7 @@ SEO Elements to Include:
 4. Search intent: {self.article_intent}
 5. Suggested internal linking topics and detailed internal linking methods (e.g., linking to pillar pages, related articles, or product pages)
 6. Types of external sources to reference
-7. If there is a data mentioned in H1 tag use only the present year
+7. If there is a date mentioned in the H1 tag, use only the present year (2025).
 
 Please structure the output exactly as follows:
 
