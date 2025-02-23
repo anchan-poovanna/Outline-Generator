@@ -8,28 +8,40 @@ from dotenv import load_dotenv
 import os
 from typing import List, Dict
 
-def safe_split(text, delimiter1, delimiter2=None):
-    """Safely split text between two delimiters"""
+def safe_split(text: str, delimiter1: str, delimiter2: str = None) -> str:
+    """
+    Safely split text between two delimiters with improved error handling
+    """
     try:
+        if not text or not isinstance(text, str):
+            return ""
+            
         if delimiter2:
+            # Handle two-delimiter case
             split1 = text.split(delimiter1, 1)
             if len(split1) > 1:
-                split2 = split1[1].split(delimiter2, 1)
-                return split2[0].strip() if len(split2) > 1 else ""
+                content_after_first = split1[1]
+                split2 = content_after_first.split(delimiter2, 1)
+                return split2[0].strip() if len(split2) > 1 else content_after_first.strip()
+            return ""
         else:
+            # Handle single-delimiter case
             split1 = text.split(delimiter1, 1)
             return split1[1].strip() if len(split1) > 1 else ""
     except Exception as e:
         st.error(f"Error processing content: {str(e)}")
         return ""
 
-def display_enhanced_outline(enhanced_outline):
-    """Display enhanced outline with proper error handling"""
+def display_enhanced_outline(enhanced_outline: str):
+    """
+    Display enhanced outline with improved error handling and content parsing
+    """
     try:
-        if not enhanced_outline:
-            st.error("No outline content available")
+        if not enhanced_outline or not isinstance(enhanced_outline, str):
+            st.error("No valid outline content available")
             return
 
+        # Define sections and their delimiters
         sections = {
             "Meta Title": ("Meta title:", "Meta description:"),
             "Meta Description": ("Meta description:", "Slug:"),
@@ -44,30 +56,48 @@ def display_enhanced_outline(enhanced_outline):
         st.markdown("<p class='big-font'>Enhanced Content Outline:</p>", unsafe_allow_html=True)
         
         for section_name, (start_delimiter, end_delimiter) in sections.items():
-            content = safe_split(enhanced_outline, start_delimiter, end_delimiter)
+            try:
+                content = safe_split(enhanced_outline, start_delimiter, end_delimiter)
+                
+                if not content:
+                    continue  # Skip empty sections instead of displaying them
+                
+                if section_name == "H1 Options":
+                    st.markdown("<div class='medium-font'>", unsafe_allow_html=True)
+                    st.markdown(f"<p><strong>{section_name}:</strong></p>", unsafe_allow_html=True)
+                    # Split by bullet points or numbers at the start of a line
+                    options = [opt.strip() for opt in content.split('\n') if opt.strip()]
+                    # Remove bullet points or numbers if they exist
+                    options = [opt[2:] if opt.startswith('- ') else opt for opt in options]
+                    options = [opt[3:] if opt[0].isdigit() and opt[1:3] == '. ' else opt for opt in options]
+                    for opt in options:
+                        if opt:  # Only display non-empty options
+                            st.markdown(f"• {opt}", unsafe_allow_html=True)
+                    st.markdown("</div>", unsafe_allow_html=True)
+                
+                elif section_name == "Writing Guidelines":
+                    st.markdown("<div class='medium-font'>", unsafe_allow_html=True)
+                    st.markdown(f"<p><strong>{section_name}:</strong></p>", unsafe_allow_html=True)
+                    # Split by bullet points or new lines
+                    guidelines = [g.strip() for g in content.split('\n') if g.strip()]
+                    # Remove bullet points if they exist
+                    guidelines = [g[2:] if g.startswith('- ') else g for g in guidelines]
+                    for guideline in guidelines:
+                        if guideline:  # Only display non-empty guidelines
+                            st.markdown(f"• {guideline}", unsafe_allow_html=True)
+                    st.markdown("</div>", unsafe_allow_html=True)
+                
+                else:
+                    st.markdown(
+                        f"""<div class='medium-font'>
+                            <p><strong>{section_name}:</strong><br>{content}</p>
+                        </div>""",
+                        unsafe_allow_html=True
+                    )
             
-            if section_name == "H1 Options":
-                st.markdown("<div class='medium-font'>", unsafe_allow_html=True)
-                st.markdown(f"<p><strong>{section_name}:</strong></p>", unsafe_allow_html=True)
-                options = [opt.strip() for opt in content.split('-') if opt.strip()]
-                for opt in options:
-                    st.markdown(f"• {opt}", unsafe_allow_html=True)
-                st.markdown("</div>", unsafe_allow_html=True)
-            elif section_name == "Writing Guidelines":
-                st.markdown("<div class='medium-font'>", unsafe_allow_html=True)
-                st.markdown(f"<p><strong>{section_name}:</strong></p>", unsafe_allow_html=True)
-                # Split by dash/hyphen and clean up the points
-                guidelines = [guideline.strip() for guideline in content.split('-') if guideline.strip()]
-                for guideline in guidelines:
-                    st.markdown(f"• {guideline}", unsafe_allow_html=True)
-                st.markdown("</div>", unsafe_allow_html=True)
-            else:
-                st.markdown(
-                    f"""<div class='medium-font'>
-                        <p><strong>{section_name}:</strong><br>{content}</p>
-                    </div>""",
-                    unsafe_allow_html=True
-                )
+            except Exception as e:
+                st.warning(f"Error displaying section {section_name}: {str(e)}")
+                continue  # Continue with next section even if one fails
 
     except Exception as e:
         st.error(f"Error displaying outline: {str(e)}")
