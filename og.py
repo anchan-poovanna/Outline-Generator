@@ -180,9 +180,11 @@ Slug: [Insert primary keyword as slug]
 
 Outline:
 
-H1:Options [Provide 3-5 title options]
+H1 Options : 
+[Provide 3-5 title options]
 
-Introduction: [Outline approach and key points]
+Introduction:
+[Outline approach and key points]
 
 H2: [Main section title]
   - H3: [Subsection points]
