@@ -130,7 +130,7 @@ class LLMEnhancedAnalyzer:
         """Get LLM analysis using OpenAI API"""
         try:
             response = self.openai_client.chat.completions.create(
-                model="gpt-4-1106-preview",
+                model="gpt-4o",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": context}
