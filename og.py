@@ -180,7 +180,7 @@ Slug: [Insert primary keyword as slug]
 
 Outline:
 
-H1 Options : 
+H1 Options: 
 [Provide 3-5 title options]
 
 Introduction:
