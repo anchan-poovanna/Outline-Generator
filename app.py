@@ -8,26 +8,42 @@ from dotenv import load_dotenv
 import os
 from typing import List, Dict
 
-def safe_split(text: str, delimiter1: str, delimiter2: str = None) -> str:
+import re
+import streamlit as st
+
+def safe_split(text, delimiter1, delimiter2=None):
     """
-    Safely split text between two delimiters with improved error handling
+    Extract content from text between two delimiters with flexible matching.
+    This function uses regex to allow for optional spaces and an optional colon in the delimiter.
     """
     try:
-        if not text or not isinstance(text, str):
-            return ""
-            
+        # Build a regex pattern for delimiter1: allow optional spaces before/after the colon
+        # The pattern allows the delimiter word(s), then optional spaces, an optional colon, then optional spaces.
+        delim1_pattern = re.compile(re.escape(delimiter1).replace(r'\:', r'\s*:?[\s]*'), re.IGNORECASE)
+        match1 = delim1_pattern.search(text)
+        if not match1:
+            # Fallback: remove colon and try again.
+            alt_delim1 = delimiter1.replace(":", "").strip()
+            delim1_pattern = re.compile(re.escape(alt_delim1), re.IGNORECASE)
+            match1 = delim1_pattern.search(text)
+            if not match1:
+                return ""
+        start = match1.end()
+
         if delimiter2:
-            # Handle two-delimiter case
-            split1 = text.split(delimiter1, 1)
-            if len(split1) > 1:
-                content_after_first = split1[1]
-                split2 = content_after_first.split(delimiter2, 1)
-                return split2[0].strip() if len(split2) > 1 else content_after_first.strip()
-            return ""
+            delim2_pattern = re.compile(re.escape(delimiter2).replace(r'\:', r'\s*:?[\s]*'), re.IGNORECASE)
+            match2 = delim2_pattern.search(text, start)
+            if not match2:
+                # Fallback for delimiter2
+                alt_delim2 = delimiter2.replace(":", "").strip()
+                delim2_pattern = re.compile(re.escape(alt_delim2), re.IGNORECASE)
+                match2 = delim2_pattern.search(text, start)
+                if not match2:
+                    return text[start:].strip()
+            end = match2.start()
+            return text[start:end].strip()
         else:
-            # Handle single-delimiter case
-            split1 = text.split(delimiter1, 1)
-            return split1[1].strip() if len(split1) > 1 else ""
+            return text[start:].strip()
     except Exception as e:
         st.error(f"Error processing content: {str(e)}")
         return ""
@@ -46,7 +62,7 @@ def display_enhanced_outline(enhanced_outline: str):
             "Meta Title": ("Meta title:", "Meta description:"),
             "Meta Description": ("Meta description:", "Slug:"),
             "Slug": ("Slug:", "Outline:"),
-            "H1 Options": ("H1:", "Introduction:"),
+            "H1 Options": ("H1 Options :", "Introduction:"),
             "Introduction": ("Introduction:", "Writing Guidelines:"),
             "Writing Guidelines": ("Writing Guidelines:", "Article Type Prediction:"),
             "Article Type Prediction": ("Article Type Prediction:", "Justification:"),
