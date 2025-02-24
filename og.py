@@ -154,9 +154,9 @@ class LLMEnhancedAnalyzer:
             'outline_structure': f"""Create a comprehensive SEO article outline for: {serp_data.get('search_parameters', {}).get('q', '')}
 
 Target Audience:
-- Primary: Business owners, entrepreneurs, and startup founders in the USA
-- Secondary: Business leaders and aspiring entrepreneurs
-- Industry level: Intermediate
+- Primary: {serp_data.get('search_parameters', {}).get('q', '')}
+- Secondary: {serp_data.get('search_parameters', {}).get('q', '')}
+- Industry level: {serp_data.get('search_parameters', {}).get('q', '')}
 
 SEO Elements to Include:
 1. Recommended meta title (50-60 characters)
