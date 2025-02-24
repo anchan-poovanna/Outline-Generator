@@ -62,7 +62,7 @@ def display_enhanced_outline(enhanced_outline: str):
             "Meta Title": ("Meta title:", "Meta description:"),
             "Meta Description": ("Meta description:", "Slug:"),
             "Slug": ("Slug:", "Outline:"),
-            "H1 Options": ("H1 Options :", "Introduction:"),
+            "H1 Options": ("H1 Options:", "Introduction:"),
             "Introduction": ("Introduction:", "Writing Guidelines:"),
             "Writing Guidelines": ("Writing Guidelines:", "Article Type Prediction:"),
             "Article Type Prediction": ("Article Type Prediction:", "Justification:"),
@@ -170,7 +170,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 def main():
-    st.markdown("<h1 style='text-align: center;'>Content Analyzer</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center;'>Outline Generator</h1>", unsafe_allow_html=True)
     
     # Create two columns for layout
     col1, col2 = st.columns([1, 2])
