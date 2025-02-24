@@ -12,6 +12,11 @@ import os
 from dotenv import load_dotenv
 import streamlit as st  # Use Streamlit secrets
 
+@st.cache_resource
+def get_requests_session():
+    return requests.Session()
+
+
 class LLMEnhancedAnalyzer:
     def __init__(self, firecrawl_api_key: str, openai_api_key: str):
         self.firecrawl = FirecrawlApp(api_key=firecrawl_api_key)
@@ -382,11 +387,10 @@ Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
             print(f"Error identifying content elements: {str(e)}")
             return {}
 
+@st.cache_data(ttl=3600)
 def get_search_results(query: str, api_key: str, num_results: int = 10) -> Dict:
-    """Get search results from SerpAPI with enhanced error handling and logging"""
     url = "https://serpapi.com/search"
     
-    # Validate API key
     if not api_key or api_key.isspace():
         st.error("SERPAPI_KEY is not properly configured in Streamlit secrets")
         return None
@@ -399,15 +403,13 @@ def get_search_results(query: str, api_key: str, num_results: int = 10) -> Dict:
         "gl": "us"
     }
     
+    session = get_requests_session()  # Reuse the persistent session
+
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            # Add logging for debugging
             st.write(f"Attempting SERP API call (attempt {attempt + 1}/{max_retries})")
-            
-            response = requests.get(url, params=params, timeout=30)
-            
-            # Log response status for debugging
+            response = session.get(url, params=params, timeout=30)
             st.write(f"SERP API Response Status: {response.status_code}")
             
             if response.status_code == 200:
@@ -427,6 +429,7 @@ def get_search_results(query: str, api_key: str, num_results: int = 10) -> Dict:
     
     return None
 
+
 def main():
     try:
         
@@ -434,6 +437,10 @@ def main():
         FIRECRAWL_API_KEY = st.secrets["FIRECRAWL_API_KEY"]
         OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
         SERPAPI_KEY = st.secrets["SERPAPI_KEY"]
+
+                # Pre-warm the SERP API with a dummy query
+        dummy_query = "warm up"
+        _ = get_search_results(dummy_query, SERPAPI_KEY, num_results=1)
         
 
         # Get search query from user
